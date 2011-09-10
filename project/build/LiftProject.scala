@@ -8,11 +8,12 @@ class LiftProject(info: ProjectInfo) extends DefaultWebProject(info) {
 
   // If you're using JRebel for Lift development, uncomment
   // this line
-  override def scanDirectories = Nil
+  //override def scanDirectories = Nil
 
   lazy val JavaNet = "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
 
   override def libraryDependencies = Set(
+    "fmpwizard" %% "lift-named-comet" % "0.1" % "compile",
     "net.liftweb" %% "lift-webkit" % liftVersion.value.toString % "compile",
     "net.liftweb" %% "lift-mapper" % liftVersion.value.toString % "compile",
     "org.mortbay.jetty" % "jetty" % "6.1.26" % "test",
