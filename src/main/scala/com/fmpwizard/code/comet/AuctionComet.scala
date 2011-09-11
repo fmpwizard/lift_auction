@@ -1,55 +1,37 @@
-package com.fmpwizard.code.comet
+package com.fmpwizard.code
+package comet
 
 /**
- * Created by IntelliJ IDEA.
- * User: Diego Medina
- * Date: 9/7/11
- * Time: 11:15 PM
+ * This is the named comet library found at
+ * https://github.com/fmpwizard/LiftNamedComet
  */
-
 import com.fmpwizard.cometactor.pertab.namedactor.{NamedCometActor, CometListerner}
 
 import net.liftweb._
 import common.{Box, Full, Logger}
 import http._
 import js.JsCmds.SetHtml
-import SHtml._
 import js.JE._
 import js.{JsCmd, JsCmds}
-import S._
 import actor.LiftActor
-import util.DynoVar
+//import util.DynoVar
 
 import scala.xml.Text
+import lib.ItemPrice
 
-
+/**
+ * This is the message we pass to our Auction Actor
+ */
 case class Message(item: String, price: Double)
 
 
-object ItemPrice extends Logger{
-
-  private var ItemsPrices: Map[String, Double] = Map()
-
-  def getPrice(str: Box[String]): Box[Double] = synchronized {
-    val item= str.getOrElse("")
-    ItemsPrices.get(item ) match {
-      case Some(price) => info("Our map is %s".format(ItemsPrices));  Full(price)
-      case None => {
-        info("Our map is %s".format(ItemsPrices))
-        Full(0.00)
-      }
-    }
-  }
-
-  def setPrice(str: Box[String], price: Double) = synchronized {
-    val item= str.getOrElse("")
-    ItemsPrices += item -> price
-    info("Our items map is %s".format(ItemsPrices))
-  }
-}
 
 class AuctionComet extends NamedCometActor with Logger{
 
+  /**
+   * We store the item and price on our global object
+   * and then retrieve it and use it on our partialUpdate
+   */
   override def lowPriority: PartialFunction[Any, Unit] ={
     case Message(item, price) => {
       ItemPrice.setPrice(Full(item), price )
@@ -60,14 +42,20 @@ class AuctionComet extends NamedCometActor with Logger{
     }
   }
 
+  /**
+   * I use the value name because S.param("q") seems Empty at the time the comet calls render
+   */
   def render= {
     "#item *" #> Text(name.openOr("N/A")) &
     "#price *" #> Text(ItemPrice.getPrice(name).openOr(0.00).toString) &
-    //I use the value name because S.param("q") seems Empty at the time the comet calls render
     "#bid [onclick]" #> SHtml.jsonCall(JsRaw("""{item : """" + name.openOr("3") + """", bid : $('#price').text() }""")
       , bid _)._2
   }
 
+  /**
+   * We parse the Json data we get from jsonCall()
+   * and we pass this info to our Actor dispatcher
+   */
   def bid(x: Any) : JsCmd = {
     val (item: String, bid) = x match {
       case m: Map[String, String] => (
@@ -79,11 +67,11 @@ class AuctionComet extends NamedCometActor with Logger{
     info("item is: %s".format(item))
     info("Bid is: %s".format(bid))
 
-      /**
-       * listenerFor(cometName) returns a DispatcherActor2 that in turn
-       * will send the CityStateUpdate case class to the correct comet actors that
-       * we got json data for
-       */
+    /**
+     * listenerFor() returns a DispatcherActor that in turn
+     * will send the Message case class to the correct comet actor9s) that
+     * we got json data for
+     */
     CometListerner.listenerFor(Full(item)) match {
       case a: LiftActor => info(bid); a !  Message(item, (bid.toDouble + 1.00))
       case _            => info("No actor to send an update")

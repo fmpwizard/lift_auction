@@ -1,0 +1,7 @@
+This is a demo application showing how to use
+a little library I wrote to use Named comet actors from Lift.
+
+You can see a running application here
+
+[Lift Auction](http://dmedina.scala-tools.org/3/)
+
