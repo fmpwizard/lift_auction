@@ -61,8 +61,9 @@ class AuctionComet extends NamedCometActor with Logger{
   }
 
   def render= {
+    "#item *" #> Text(name.openOr("N/A")) &
     "#price *" #> Text(ItemPrice.getPrice(name).openOr(0.00).toString) &
-    //I use the val name because S.param("q") seems Empty at the time the comet calls render
+    //I use the value name because S.param("q") seems Empty at the time the comet calls render
     "#bid [onclick]" #> SHtml.jsonCall(JsRaw("""{item : """" + name.openOr("3") + """", bid : $('#price').text() }""")
       , bid _)._2
   }

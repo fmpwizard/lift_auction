@@ -6,8 +6,8 @@
     </appender>
     <logger name="com.fmpwizard.code.snippet" level="error"/>
     <logger name="com.fmpwizard.code.api" level="error"/>
-    <logger name="com.fmpwizard.code.comet" level="info"/>
-    <logger name="com.fmpwizard.cometactor.pertab.namedactor" level="debug"/>
+    <logger name="com.fmpwizard.code.comet" level="error"/>
+    <logger name="com.fmpwizard.cometactor.pertab.namedactor" level="error"/>
     <logger name="com.fmpwizard.code" level="error"/>
     <root level="error">
         <appender-ref ref="STDOUT" />
